@@ -4,6 +4,7 @@ import pygame
 from settings import Settings
 from ship import Ship
 from bullet import Bullet
+from alien import Alien
 
 class AlienShooter: 
 
@@ -19,6 +20,9 @@ class AlienShooter:
 
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
+        self.aliens = pygame.sprite.Group()
+
+        self._create_fleet()
 
         # Set the background color
         self.bg_color = (230, 230, 230)
@@ -78,6 +82,24 @@ class AlienShooter:
         if len(self.bullets) < self.settings.bullets_allowed:
             new_bullet = Bullet(self)
             self.bullets.add(new_bullet)
+
+    def _create_fleet(self):
+        # Create a fleet of aliens
+        # Make an alien
+        alien = Alien(self)
+        alien_height = alien.rect.height
+
+        available_space_y = self.settings.screen_height - (2 * alien_height)
+        number_aliens_y = available_space_y // (2 * alien_height)
+
+        # Create the first row of aliens
+        for alien_number in range(number_aliens_y):
+            # Create an alien and place it in th=e row
+            alien = Alien(self)
+            alien.y = alien_height + 2 * alien_height * alien_number
+
+            alien.rect.y = alien.y
+            self.aliens.add(alien)
                         
     def _update_bullets(self):
         # Update position of bullets and get rid of old bullets
@@ -97,6 +119,8 @@ class AlienShooter:
             self.ship.blitme()
             for bullet in self.bullets.sprites():
                 bullet.draw_bullet() 
+            
+            self.aliens.draw(self.screen)
 
             pygame.display.flip()
 
