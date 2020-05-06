@@ -5,6 +5,7 @@ from settings import Settings
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
+from random import randint
 
 class AlienShooter: 
 
@@ -33,6 +34,7 @@ class AlienShooter:
             self._check_events()
             self.ship.update()
             self._update_bullets()
+            self._update_aliens()
             self._update_screen()
                 
     
@@ -89,29 +91,31 @@ class AlienShooter:
         # Spacing between each alien is equal to one alien width
 
         alien = Alien(self)
-        alien_width, alien_height = alien.rect.size
-        available_space_y = self.settings.screen_height - (2 * alien_height)
-        number_aliens_y = available_space_y // (2 * alien_height)
 
         # Determine the number of rows of aliens that fit on the screen
-        ship_width = self.ship.rect.width
-        available_space_x = (self.settings.screen_width - (3 * alien_width) - ship_width)
-        number_rows = available_space_x // (2 * alien_width)
+
+        fleet_size = self.settings.fleet_size
+        alien_spawnpoint_x = self.settings.screen_width
 
         # Create the full fleet of aliens
-        for row_number in range(number_rows):
-            for alien_number in range(number_aliens_y):
-                self._create_alien(alien_number, row_number)
+        for alien in range(fleet_size):
+            alien_spawnpoint_x = alien_spawnpoint_x + 600
+            self._create_alien(alien_spawnpoint_x)
 
 
-    def _create_alien(self, alien_number, row_number):
+    def _create_alien(self, alien_spawnpoint_x):
         # Create an alien and place it in the row
         alien = Alien(self)
-        alien_width, alien_height = alien.rect.size
-        alien.y = alien_height + 2 * alien_height * alien_number
-        alien.rect.y = alien.y
-        alien.rect.x = alien.rect.width + 2 * alien.rect.width * row_number
+        alien_height = alien.rect.height
+        alien.rect.y = randint(alien_height, self.settings.screen_height - alien_height)
+        alien.y = alien.rect.y
+        alien.x = alien_spawnpoint_x
         self.aliens.add(alien)
+        print(alien.rect.y)
+    
+    def _update_aliens(self):
+        # Update the positions of all aliens in the fleet
+        self.aliens.update()
 
 
                         

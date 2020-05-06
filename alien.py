@@ -23,3 +23,9 @@ class Alien(Sprite):
 
         # Store the alien's exact vertical position
         self.y = float(self.rect.y)
+
+    def update(self):
+        # Move the alien across the screeen
+        self.x -= self.settings.alien_speed
+        self.rect.x = self.x
+
