@@ -129,8 +129,15 @@ class AlienShooter:
     def _ship_hit(self):
         # Respond to the ship being hit by an alien
 
-        # Decrement ships left
-        self.stats.ships_left -= 1
+        # Decrement life left
+        self.stats.ship_health -= 1
+        print("You took a hit")
+
+        if self.stats.ship_health < 1:
+            print("You died")
+            self.stats.ship_health = 3
+            self.stats.ships_left -= 1
+            sleep(0.5)
                     
 
     
@@ -142,6 +149,7 @@ class AlienShooter:
         # Look for alien ship collisions
         if pygame.sprite.spritecollideany(self.ship, self.aliens):
                 self.aliens.remove(self.aliens)
+                self._ship_hit()
                     
 
 
