@@ -1,7 +1,9 @@
 import sys
+from time import sleep
 
 import pygame
 from settings import Settings
+from game_stats import GameStats
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
@@ -18,6 +20,9 @@ class AlienShooter:
         )
 
         pygame.display.set_caption("Alien Shooter")
+
+        # Create an instance to store game statistics
+        self.stats = GameStats(self)
 
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
@@ -111,11 +116,33 @@ class AlienShooter:
         alien.y = alien.rect.y
         alien.x = alien_spawnpoint_x
         self.aliens.add(alien)
-        print(alien.rect.y)
+
+    def _check_fleet_edges(self):
+        # Respond appropriately if any aliens have reached the edge
+
+        for alien in self.aliens.sprites():
+            if alien.check_edges():
+                alien.remove()
+
+                #### Remove the ship from the fleet
+
+    def _ship_hit(self):
+        # Respond to the ship being hit by an alien
+
+        # Decrement ships left
+        self.stats.ships_left -= 1
+                    
+
     
     def _update_aliens(self):
         # Update the positions of all aliens in the fleet
+        self._check_fleet_edges()
         self.aliens.update()
+
+        # Look for alien ship collisions
+        if pygame.sprite.spritecollideany(self.ship, self.aliens):
+                self.aliens.remove(self.aliens)
+                    
 
 
                         
@@ -128,6 +155,19 @@ class AlienShooter:
         for bullet in self.bullets.copy():
             if bullet.rect.right >= self.settings.screen_width:
                 self.bullets.remove(bullet)
+
+        self._check_bullet_alien_collisions()
+    
+    def _check_bullet_alien_collisions(self):
+        # Respond to bullet alien collisions
+        # Remove any bullets and aliens that have collided
+
+        collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+
+        if not self.aliens:
+            # Destroy existing bullets and create new fleet
+            self.bullets.empty()
+            self._create_fleet()
 
 
     
