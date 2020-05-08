@@ -24,8 +24,10 @@ class Settings:
         # Alien settings
         self.alien_speed = 8.0
         self.fleet_size = 30
+        self.alien_points = 50
 
         # How quickly the game speeds up
         self.speedup_scale = 1.1
+
 
         

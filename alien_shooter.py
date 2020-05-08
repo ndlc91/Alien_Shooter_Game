@@ -8,6 +8,8 @@ from button import Button
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
+from scoreboard import Scoreboard
+from health_bar import HealthBar
 from random import randint
 
 class AlienShooter: 
@@ -24,8 +26,10 @@ class AlienShooter:
 
         # Create an instance to store game statistics
         self.stats = GameStats(self)
+        self.sb = Scoreboard(self)
 
         self.ship = Ship(self)
+        self.health_bar = HealthBar(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         
@@ -34,7 +38,7 @@ class AlienShooter:
         self._create_fleet()
 
         # Make the play Button
-        self.play_button = Button(self, "Play Again")
+        self.play_button = Button(self, "Play Game")
 
         
 
@@ -73,6 +77,9 @@ class AlienShooter:
         if button_clicked and not self.stats.game_active:
             self.stats.reset_stats()
             self.stats.game_active = True
+            self.sb.prep_score()
+            self.sb.prep_health()
+            self.sb.prep_ships()
             
             pygame.mouse.set_visible(False)
             # Get rid of any remaining aliens and bullets
@@ -175,6 +182,8 @@ class AlienShooter:
 
         # Decrement life left
         self.stats.ship_health -= 1
+        self.sb.prep_health()
+        self.sb.prep_ships()
         print("You took a hit")
 
         if self.stats.ship_health < 1:
@@ -182,6 +191,8 @@ class AlienShooter:
             self.ship.center_ship()
             self.stats.ship_health = 3
             self.stats.ships_left -= 1
+            self.sb.prep_health()
+            self.sb.prep_ships()
             sleep(0.5)
         if self.stats.ships_left < 1:
             self.stats.game_active = False
@@ -221,8 +232,14 @@ class AlienShooter:
 
             
 
-        pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+        collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
 
+        if collisions:
+            for aliens in collisions.values():
+                    self.stats.score += self.settings.alien_points * len(aliens)
+                    self.sb.prep_score()
+
+            
        
 
         if not self.aliens:
@@ -240,6 +257,8 @@ class AlienShooter:
                 bullet.draw_bullet() 
             
             self.aliens.draw(self.screen)
+
+            self.sb.show_score()
 
             # Draw the play button if the game is inactive
             if not self.stats.game_active:
